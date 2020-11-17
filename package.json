@@ -50,11 +50,11 @@
     "yargs": "^16.1.0"
   },
   "scripts": {
-    "start": "node react-bootstrap/scripts/start.js",
-    "build": "node react-bootstrap/scripts/build.js",
+    "start": "node react-build-bootstrap/scripts/start.js",
+    "build": "node react-build-bootstrap/scripts/build.js",
     "test": "jest",
-    "generate-config": "node build/server/fs-stuff/generate-config.js -c config.json -p paths.json",
-    "server": "node-env-run build/server/www.js -- -c config.json -p paths.json --exec nodemon | pino-colada",
+    "generate-config": "node build/server/fs-stuff/generate-config.js run -c config.json -p paths.json",
+    "server": "nodemon build/server/www.js -- -c config.json -p paths.json | pino-colada",
     "dev": "run-p server start"
   },
   "proxy": "http://localhost:3001",
@@ -89,7 +89,6 @@
     "jest-environment-jsdom-fourteen": "1.0.1",
     "jest-resolve": "24.9.0",
     "jest-watch-typeahead": "0.4.2",
-    "node-env-run": "^3.0.2",
     "node-sass": "^4.0.0",
     "nodemon": "^1.19.4",
     "npm-run-all": "^4.1.5",

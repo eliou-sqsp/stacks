@@ -38,7 +38,7 @@ export class StackComponent extends Component<StackComponentProps, any> {
     const disabled = stack.disabled;
     return  <Menu>
       <MenuItem icon="th-list" text="Logs" onClick={getLogs} />
-      {disabled ? <MenuItem icon="pause" text="Disable" onClick={onToggle} /> : <MenuItem icon="play" text="Enable" onClick={onToggle}/>}
+      {disabled ? <MenuItem icon="play" text="Enable" onClick={onToggle}/> : <MenuItem icon="pause" text="Disable" onClick={onToggle} />}
     </Menu>
   }
 

@@ -12,21 +12,19 @@ export interface StackJSON {
   error?: Error;
 }
 
-export interface StackParameters extends StackJSON{
+export interface StackParameters {
+  name: StackName;
+  disabled: boolean;
   services: Record<ServiceName, Service>;
+  statusDate?: string
+  status?: StackComponentStatus;
+  error?: Error;
 }
 
 export interface Rest {
   Id: string;
   Status: string;
   Names: string[];
-}
-
-export interface CheckResponse {
-  serviceName: ServiceName;
-  rest: Rest;
-  status?: StackComponentStatus;
-  error?: Error;
 }
 
 export class Stack {
@@ -55,32 +53,29 @@ export class Stack {
     this.services = props.services;
   }
 
+  toJSON() {
+    return {
+      name: this.name,
+      status: this.status,
+      disabled: !!this.disabled,
+      error: this.error,
+      services: this.services,
+    }
+  }
+
   setService(service: Service) {
+    if (!this.services) {
+      this.services = {} as any;
+    }
+
     (this.services as any)[service.name] = service;
     return this;
   }
 
-  withCheckResponse(props: CheckResponse) {
-    let { serviceName, status, error, rest } = props;
-    let { services } = this;
-    if (!status) {
-      status = error ? 'failed' : 'ok';
-    }
-
-    const newServices: any = services;
-
-    return new Stack({
-      name: this.name,
-      disabled: !!this.disabled,
-      error: this.error,
-      services: newServices,
-    });
-  }
-
-  get(serviceName: ServiceName) {
+  get = (serviceName: ServiceName) => {
     const { services } = this;
     if (!services) {
-      throw new Error(`No services for ${this.name}`);
+      throw new Error(`No services for ${this.name}: ${serviceName}`);
     }
 
     const component = services[serviceName];
@@ -105,83 +100,19 @@ export class Stack {
 
   getRabbitMQ = () => this.get('rabbitMQ');
 
-  setMongoOK(rest: Rest) {
-    const mongo = this.getMongo();
-    return this.withCheckResponse({...mongo, serviceName: 'mongo', status: 'ok', rest });
-  }
-
-  setMongoError(err: Error, rest: Rest) {
-    const mongo = this.getMongo();
-    return this.withCheckResponse({...mongo, serviceName: 'mongo', status: 'failed', error: err, rest });
-  }
-
-  setRedisOK(rest: Rest) {
-    const redis = this.getRedis();
-    return this.withCheckResponse({...redis, serviceName: 'redis', status: 'ok', rest });
-  }
-
-  setRedisError(err: Error, rest: Rest) {
-    const redis = this.getRedis();
-    return this.withCheckResponse({...redis, serviceName: 'redis', status: 'failed', error: err, rest });
-  }
-
-  setConsulOK(rest: Rest) {
-    const consul = this.getConsul();
-    return this.withCheckResponse({...consul, serviceName: 'consul', status: 'ok', rest });
-  }
-
-  setConsulError(err: Error, rest: Rest) {
-    const consul = this.getConsul();
-    return this.withCheckResponse({...consul, serviceName: 'consul', status: 'failed', error: err, rest });
-  }
-
-  setEnvoyOK(rest: Rest) {
-    const envoy = this.getEnvoy();
-    return this.withCheckResponse({...envoy, serviceName: 'envoy', status: 'ok', rest });
-  }
-
-  setEnvoyError(err: Error, rest: Rest) {
-    const envoy = this.getEnvoy();
-    return this.withCheckResponse({...envoy, serviceName: 'envoy', status: 'failed', error: err, rest });
-  }
-
-  setWardenOK(rest: Rest) {
-    const warden = this.getConsul();
-    return this.withCheckResponse({...warden, serviceName: 'warden', status: 'ok', rest });
-  }
-
-  setWardenError(err: Error, rest: Rest) {
-    const warden = this.getConsul();
-    return this.withCheckResponse({...warden, serviceName: 'warden', status: 'failed', error: err, rest });
-  }
-
-  setZookeeperOK(rest: Rest) {
-    const zookeeper = this.getZookeeper();
-    return this.withCheckResponse({...zookeeper, serviceName: 'zookeeper', status: 'ok', rest });
-  }
-
-  setZookeeperError(err: Error, rest: Rest) {
-    const zookeeper = this.getZookeeper();
-    return this.withCheckResponse({...zookeeper, serviceName: 'zookeeper', status: 'failed', error: err, rest });
-  }
-
-  setRabbitOK(rest: Rest) {
-    return this.withCheckResponse({ serviceName: 'rabbitMQ', status: 'ok', rest });
-  }
-
-  setRabbitError(err: Error, rest: Rest) {
-    return this.withCheckResponse({ serviceName: 'rabbitMQ', status: 'failed', error: err, rest });
-  }
-
-  toggleDisabled() {
+  changeDisabled(newDisabled: boolean) {
     return new Stack({
       name: this.name,
       status: this.status!,
       statusDate: this.statusDate!,
-      disabled: !this.disabled,
+      disabled: newDisabled,
       error: this.error,
       services: this.services,
     });
+  }
+
+  toggleDisabled() {
+    return this.changeDisabled(!this.disabled);
   }
 
   getServicesAsList() {

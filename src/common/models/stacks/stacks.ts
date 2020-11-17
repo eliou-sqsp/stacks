@@ -1,4 +1,4 @@
-import { Rest, Stack, StackJSON, StackName } from "../stack/stack";
+import { Stack, StackJSON, StackName } from "../stack/stack";
 
 export interface StacksJSON {
   stacks: {
@@ -90,75 +90,16 @@ export class Stacks {
     });
   }
 
-  setCore(core: Stack) {
-    return this.change('core', core);
-  }
+  toJSON() {
 
-  setServiceMesh(serviceMesh: Stack) {
-    return this.change('serviceMesh', serviceMesh);
-  }
+    const stacksJSON: Partial<Record<StackName, StackJSON>> = {};
 
-  setMongoOK(rest: Rest) {
-    return this.setCore(this.core.setMongoOK(rest));
-  }
+    POSSIBLE_STACKS.forEach(possibleStack => {
+      if (this.get(possibleStack)) {
+        stacksJSON[possibleStack] = this.get(possibleStack).toJSON();
+      }
+    });
 
-  setMongoError(err: Error, rest: Rest) {
-    return this.setCore(this.core.setMongoError(err, rest));
-  }
-
-  setRedisOK(rest: Rest) {
-    return this.setCore(this.core.setRedisOK(rest));
-  }
-
-  setRedisError(err: Error, rest: Rest) {
-    return this.setCore(this.core.setRedisError(err, rest));
-  }
-
-  setConsulOK(rest: Rest) {
-    const coreOk =  this.setCore(this.core.setConsulOK(rest));
-    return coreOk;
-  }
-
-  setConsulError(err: Error, rest: Rest) {
-    const coreError = this.setCore(this.core.setConsulError(err, rest));
-
-    return coreError;
-  }
-
-  setEnvoyOK(rest: Rest) {
-    return this.setServiceMesh(this.serviceMesh.setEnvoyOK(rest));
-  }
-
-  setEnvoyError(err: Error, rest: Rest) {
-    return this.setServiceMesh(this.serviceMesh.setEnvoyError(err, rest));
-  }
-
-  setWardenOK(rest: Rest) {
-    return this.setCore(this.core.setWardenOK(rest));
-  }
-
-  setWardenError(err: Error, rest: Rest) {
-    return this.setCore(this.core.setWardenError(err, rest));
-  }
-
-  setZookeeperOK(rest: Rest) {
-    return this.setCore(this.core.setZookeeperOK(rest));
-  }
-
-  setZookeeperError(err: Error, rest: Rest) {
-    return this.setCore(this.core.setZookeeperError(err, rest));
-  }
-
-  setRabbitOK(rest: Rest) {
-    return this.setCore(this.core.setRabbitOK(rest));
-  }
-
-  setRabbitError(err: Error, rest: Rest) {
-    return this.setCore(this.core.setRabbitError(err, rest));
-  }
-
-  toggleDisabled(stackName: StackName) {
-    const stack = this.get(stackName);
-    return this.change(stackName as keyof StacksParameters, stack.toggleDisabled());
+    return { stacks: stacksJSON };
   }
 }

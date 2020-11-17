@@ -1,4 +1,5 @@
-import { ServiceName, StackName } from "../../common/models/stack/stack";
+import { StackName } from "../../common/models/stack/stack";
+import { ServiceName } from "../../common/models/service/service";
 
 export type Route = {
   title: string;
@@ -41,7 +42,7 @@ export const ROUTES: Partial<Record<StackName, Partial<Record<ServiceName, Route
       title: 'Echo',
       url: '/echo/echo'
     },
-    brickredis: {
+    brickRedis: {
       title: 'Brick redis',
       url: '/echo/brick-echo'
     }

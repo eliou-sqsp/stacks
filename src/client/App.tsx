@@ -49,7 +49,7 @@ class App extends Component<AppProps, AppState> {
     );
     const stacksWithHealth = await healthResponse.json();
     this.setState({
-      stacks: Stacks.fromJSON({ stacks: stacksWithHealth })
+      stacks: Stacks.fromJSON(stacksWithHealth)
     });
   }
 
@@ -97,14 +97,14 @@ class App extends Component<AppProps, AppState> {
   onToggleSaveConfigDialog = () => {
     this.setState({
       saveConfigOpen: !this.state.saveConfigOpen,
-      restartInstructions: undefined
+      restartInstructions: undefined,
     });
   }
-
 
   renderStack(stackName: StackName) {
     const { stacks } = this.state;
     if (!stacks || !stacks.get(stackName)) {
+      console.log("NO STACK", stacks, stackName);
       return null;
     }
     return <StackComponent
@@ -189,6 +189,7 @@ class App extends Component<AppProps, AppState> {
   renderCore(isHome: boolean) {
     const { stacks } = this.state;
     if (!stacks) {
+      console.log("NO STACKS");
       return null;
     }
 
@@ -320,7 +321,7 @@ class App extends Component<AppProps, AppState> {
   }
 
   render() {
-    const { stacks, diffs } = this.state;
+    const { stacks } = this.state;
 
     return (
       <div className="App">

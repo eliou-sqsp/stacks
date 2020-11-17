@@ -1,130 +1,80 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { parse } from 'dot-properties';
 import * as yaml from 'js-yaml';
 
-import { getResolvedPaths } from './paths';
+import { Paths } from "../models/paths";
+import { getResolvedPaths } from "./paths";
+import { DockerServiceConfig, Service, ServiceName } from "../../common/models/service/service";
+import { Stack, StackName } from "../../common/models/stack/stack";
+import { Stacks } from "../../common/models/stacks/stacks";
+import {
+  getStackProperties,
+  STACK_PROP_TO_STACK_NAME,
+  updateConfigWithStacksProperties
+} from "./update-config-with-stack-properties";
 
-const resolvedPaths = getResolvedPaths();
-
-function getEnabledStacks() {
-  const src = fs.readFileSync(resolvedPaths.stacksProperties, 'utf8')
-
-  return parse(src)
-}
-
-function updateConfigWithStacks(configPath: string) {
-  const enabledStacks = getEnabledStacks();
-  fs.copyFileSync(configPath, configPath + 'tmp');
-  const configStr = fs.readFileSync(configPath, 'utf-8');
-  const configJSON = JSON.parse(configStr);
-
-  const maybeEnable = (stackName: string) => {
-    if (enabledStacks[stackName] === 'y') {
-      if (!configJSON.stacks[stackName]) {
-        configJSON.stacks[stackName] = {};
-      }
-
-      configJSON.stacks[stackName].disabled = false;
-    }
-  }
-
-  const maybeDisable = (stackName: string) => {
-    if (enabledStacks[stackName] === 'n') {
-      if (!configJSON.stacks[stackName]) {
-        configJSON.stacks[stackName] = {};
-      }
-
-      configJSON.stacks[stackName].disabled = true;
-    }
-  }
-
-  Object.keys(enabledStacks).forEach(stackName => {
-    maybeEnable(stackName);
-    maybeDisable(stackName);
-  });
-
-  fs.writeFileSync(resolvedPaths.config, JSON.stringify(configJSON, null, 2))
-
-}
-
-interface DockerService {
-  container_name: string;
-  image: string;
-  cpus: number;
-  mem_limit: string;
-  restart: string;
-  ports: string[];
+const DOCKER_TO_SERVICE_NAME: Record<string, ServiceName> = {
+  'mongodb': 'mongo',
+  'brick-redis': 'brickRedis',
+  'rabbitmq': 'rabbitMQ',
 }
 
 interface DockerCompose {
-    services: Record<string, DockerService>;
+  services: Record<string, DockerServiceConfig>;
 }
 
-function updateConfigWithContainerInfos() {
+function updateConfigWithContainerInfos(resolvedPaths: Paths) {
   const configPath = resolvedPaths.config;
   const dockersPath = resolvedPaths.dockers;
 
-  let returnStacksConfig: Record<string, any> = {};
-
-  const stacks = Object.keys(getEnabledStacks());
-  const config = require(path.resolve(configPath));
-  stacks.forEach(stackName => {
-    const dockerConfig = yaml.safeLoad(fs.readFileSync(path.join(dockersPath, stackName, 'docker-compose.yml'), 'utf8')) as DockerCompose;
+  const stackPropertyNames = Object.keys(getStackProperties(resolvedPaths));
+  let stacks = Stacks.fromJSON(require(path.resolve(configPath)));
+  stackPropertyNames.forEach(stackPropertyName => {
+    const dockerConfig = yaml.safeLoad(fs.readFileSync(path.join(dockersPath, stackPropertyName, 'docker-compose.yml'), 'utf8')) as DockerCompose;
 
     if (!dockerConfig || !dockerConfig.services) {
       throw new Error(`Could not find docker config`);
     }
 
-    const configStackName = stackName === 'servicemesh' ? 'serviceMesh' : stackName;
-
-    let stackConfig = config.stacks[configStackName];
+    const stackName = STACK_PROP_TO_STACK_NAME[stackPropertyName] || stackPropertyName;
+    let stackConfig = stacks.get(stackName as StackName);
 
     const services = Object.keys(dockerConfig.services);
-    // service looks like
-    //    consul: {
-    //       container_name: 'core_consul_1',
-    //       image: 'quay.squarespace.net/squarespace/consul:1.2.0',
-    //       cpus: 0.1,
-    //       mem_limit: '128m',
-    //       restart: 'unless-stopped',
-    //       ports: [Array]
-    //     }
 
     if (!stackConfig) {
-      stackConfig = {
-        name: configStackName
-      };
+      stackConfig = new Stack({
+        name: stackName,
+        services: {} as any,
+        disabled: true,
+      });
     }
 
-    stackConfig.name = configStackName;
-    if (!stackConfig.services) {
-      stackConfig.services = {};
-    }
-    services.forEach(serviceName => {
-      const service = dockerConfig.services[serviceName];
-      if (serviceName === 'mongodb') {
-        const mongo = stackConfig.services['mongo'];
-        stackConfig.services['mongo'] = {...mongo, name: 'mongo', containerName: service['container_name'], ports: service['ports']};
-      } else if (serviceName === 'brick-redis') {
-        const brickredis = stackConfig.services['brickredis'];
+    services.forEach(dockerServiceName => {
+      const dockerConfigService = dockerConfig.services[dockerServiceName];
+      const serviceName = DOCKER_TO_SERVICE_NAME[dockerServiceName] || dockerServiceName;
 
-        stackConfig.services['brickredis'] = {...brickredis, name: 'brickredis', containerName: service['container_name'], ports: service['ports']};
-      } else if (serviceName === 'rabbitmq') {
-        const rabbit = stackConfig.services['rabbitMQ'];
-        stackConfig.services['rabbitMQ'] = {...rabbit, name: 'rabbitMQ', containerName: service['container_name'], ports: service['ports']};
-      } else {
-        stackConfig.services[serviceName] = {...stackConfig.services[serviceName], name: serviceName, containerName: service['container_name'], ports: service['ports']}
+      let service: Service;
+      try {
+        service = stackConfig.get(serviceName);
+      } catch (e) {
+        console.log('generation error, falling back to empty service' + e.message);
+        service = new Service({ name: serviceName });
       }
-
-      returnStacksConfig[configStackName] = stackConfig;
+      stackConfig = stackConfig.setService(service.withDockerConfig(dockerConfigService));
     });
 
-    const modifiedStacks = {...config, stacks: returnStacksConfig};
-    fs.writeFileSync(resolvedPaths.config, JSON.stringify(modifiedStacks, null, 2))
+    stacks = stacks.change(stackName, stackConfig);
+
   });
+
+  return stacks;
 }
 
-updateConfigWithStacks(resolvedPaths.config);
-updateConfigWithContainerInfos()
+export function generateConfig(resolvedPaths: Paths) {
+  const stacks = updateConfigWithContainerInfos(resolvedPaths);
+  updateConfigWithStacksProperties(resolvedPaths, stacks);
+}
+
+const resolvedPaths = getResolvedPaths();
+generateConfig(resolvedPaths);

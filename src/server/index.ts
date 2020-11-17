@@ -32,7 +32,11 @@ export function startApp(stacks: Stacks, paths: Paths, dockerEndpoint: string) {
     res.json(stacks);
   });
 
-  app.use('/mongo', mongoRouterFactory(`mongodb://localhost:27017/?replicaSet=rs0`));
+  const mongoUrl = stacks.get('core').get('mongo').getUrl();
+
+  app.use('/mongo', mongoRouterFactory(mongoUrl));
+
+
   app.post('/save-config', async (req, res) => {
     const { diff } = req.body;
     try {
@@ -47,7 +51,7 @@ export function startApp(stacks: Stacks, paths: Paths, dockerEndpoint: string) {
   app.get('/container-logs/:containerId', async (req, res) => {
     const { containerId } = req.params;
 
-    const url = `http://localhost:9005/api/endpoints/1/docker/containers/${containerId}/logs?since=0&stderr=1&stdout=1&tail=100&timestamps=0`;
+    const url = path.join(dockerEndpoint, `endpoints/1/docker/containers/${containerId}/logs?since=0&stderr=1&stdout=1&tail=100&timestamps=0'`);
     const resp = await got(url).text();
     res.send(resp);
     res.end();

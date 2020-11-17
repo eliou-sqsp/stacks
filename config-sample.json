@@ -3,7 +3,6 @@
   "stacks": {
     "core": {
       "name": "core",
-      "disabled": false,
       "services": {
         "mongo": {
           "name": "mongo",
@@ -50,11 +49,28 @@
             "15672:15672"
           ]
         }
+      },
+      "disabled": false
+    },
+    "kafka": {
+      "name": "kafka",
+      "disabled": true,
+      "services": {
+        "kafka": {
+          "name": "kafka",
+          "containerName": "kafka_kafka_1",
+          "ports": [
+            "9092:9092"
+          ]
+        },
+        "kafka-setup": {
+          "name": "kafka-setup",
+          "containerName": "kafka_kafka-setup_1"
+        }
       }
     },
     "serviceMesh": {
       "name": "serviceMesh",
-      "disabled": false,
       "services": {
         "discovery": {
           "name": "discovery",
@@ -71,6 +87,23 @@
             "9002:9002",
             "9901:9901"
           ]
+        }
+      }
+    },
+    "oplog": {
+      "disabled": true,
+      "name": "oplog",
+      "services": {
+        "schema-registry": {
+          "name": "schema-registry",
+          "containerName": "oplog_schema-registry_1",
+          "ports": [
+            "18081:18081"
+          ]
+        },
+        "connect": {
+          "name": "connect",
+          "containerName": "oplog_connect_1"
         }
       }
     },
@@ -100,6 +133,37 @@
         }
       }
     },
+    "postgres": {
+      "disabled": true,
+      "name": "postgres",
+      "services": {
+        "postgres": {
+          "name": "postgres",
+          "containerName": "postgres",
+          "ports": [
+            "5432:5432"
+          ]
+        },
+        "postgres_setup": {
+          "name": "postgres_setup",
+          "containerName": "postgres_setup"
+        }
+      }
+    },
+    "search": {
+      "disabled": true,
+      "name": "search",
+      "services": {
+        "search": {
+          "name": "search",
+          "containerName": "search_indexer_service",
+          "ports": [
+            "38000:38000",
+            "38001:38001"
+          ]
+        }
+      }
+    },
     "elastic": {
       "name": "elastic",
       "disabled": true,
@@ -113,20 +177,21 @@
         }
       }
     },
-    "kafka": {
-      "name": "kafka",
-      "disabled": true,
+    "legacy-elastic": {
+      "disabled": false,
+      "name": "legacy-elastic",
       "services": {
-        "kafka": {
-          "name": "kafka",
-          "containerName": "kafka_kafka_1",
+        "elasticsearch": {
+          "name": "elasticsearch",
+          "containerName": "core_elasticsearch_1",
           "ports": [
-            "9092:9092"
+            "${DEV_LEGACY_ELASTIC_SEARCH_PORT}:9200",
+            "9300:9300"
           ]
         },
-        "kafka-setup": {
-          "name": "kafka-setup",
-          "containerName": "kafka_kafka-setup_1"
+        "elasticsearch-setup": {
+          "name": "elasticsearch-setup",
+          "containerName": "core_elasticsearch_setup"
         }
       }
     }

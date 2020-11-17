@@ -76,7 +76,7 @@
     },
     "echo": {
       "name": "echo",
-      "disabled": false,
+      "disabled": true,
       "services": {
         "echo": {
           "name": "echo",

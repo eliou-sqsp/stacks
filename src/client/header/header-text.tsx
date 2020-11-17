@@ -6,7 +6,7 @@ import {
 } from "@blueprintjs/core";
 
 interface HeaderTextProps {
-  location: any;
+  location: Location;
 }
 
 export class HeaderText extends Component<HeaderTextProps> {

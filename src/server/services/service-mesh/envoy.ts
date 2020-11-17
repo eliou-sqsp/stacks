@@ -2,8 +2,8 @@ import { Rest, Stack } from "../../../common/models/stack/stack";
 import got from 'got';
 
 export class Envoy {
-  static async doCheck(core: Stack) {
-    const url = core.getConsul().getUrl();
+  static async doCheck(stack: Stack) {
+    const url = stack.getEnvoy().getUrl();
     if (!url) {
       throw new Error(`Could not get envoy healthcheck url`);
     }
@@ -17,12 +17,13 @@ export class Envoy {
 
   }
 
-  static async hydrate(core: Stack, rest: Rest) {
+  static async hydrate(stack: Stack, rest: Rest) {
     try {
-      await Envoy.doCheck(core);
-      return core.getEnvoy().withCheckResponse({ status: 'ok', rest });
+      await Envoy.doCheck(stack);
+      return stack.getEnvoy().withCheckResponse({ status: 'ok', rest });
     } catch (e) {
-      return core.getEnvoy().withCheckResponse({ status: 'failed', error: e, rest });
+      console.log("envoy failed", e.message);
+      return stack.getEnvoy().withCheckResponse({ status: 'failed', error: e, rest });
     }
   }
 }

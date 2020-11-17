@@ -2,8 +2,18 @@ import { Rest, StackComponentStatus } from "../stack/stack";
 
 export type CoreServiceName = 'mongo' | 'consul' | 'warden' | 'redis' | 'zookeeper' | 'rabbitMQ';
 export type ServiceMeshServiceName = 'envoy' | 'discovery';
-export type EchoServiceName = 'echo' | 'brickredis';
+export type EchoServiceName = 'echo' | 'brickRedis';
 export type ServiceName = CoreServiceName | ServiceMeshServiceName | EchoServiceName;
+
+export interface DockerServiceConfig {
+  container_name: string;
+  image: string;
+  cpus: number;
+  mem_limit: string;
+  restart: string;
+  ports: string[];
+}
+
 export interface CheckResponse {
   rest: Rest;
   status?: StackComponentStatus;
@@ -12,10 +22,9 @@ export interface CheckResponse {
 export interface ServiceParameters {
   name: string;
   status?: StackComponentStatus;
-  url: string;
-  containerName: string;
+  containerName?: string;
   statusDate?: string
-  rest: Rest;
+  rest?: Rest;
   error?: Error;
   ports?: string[];
 }
@@ -23,19 +32,17 @@ export interface ServiceParameters {
 
 export class Service {
   name: string;
-  url: string;
-  containerName: string;
-  rest: Rest;
+  containerName?: string;
+  rest?: Rest;
   statusDate?: string
   status?: StackComponentStatus;
   error?: Error;
   ports?: string[];
 
   constructor(props: ServiceParameters) {
-    const { name, status, url, containerName, statusDate, rest, error, ports } = props;
+    const { name, status, containerName, statusDate, rest, error, ports } = props;
     this.name = name;
     this.status = status;
-    this.url = url;
     this.containerName = containerName;
     this.statusDate = statusDate;
     this.rest = rest;
@@ -58,9 +65,12 @@ export class Service {
     let port: string;
     if (this.name === 'warden' && this.ports.includes('8061:8081')) {
       port = '8061';
+    } else if (this.name === 'envoy' && this.ports.includes('9901:9901')) {
+      port = '9901';
     } else {
       port = this.ports[0].split(':')[0]
     }
+
 
     return `${host}:${port}`;
   }
@@ -78,6 +88,14 @@ export class Service {
     this.status = status;
 
 
+    return this;
+  }
+
+  withDockerConfig(config: DockerServiceConfig) {
+    const containerName = config['container_name'];
+    const ports = config['ports'];
+    this.containerName = containerName;
+    this.ports = ports;
     return this;
   }
 }

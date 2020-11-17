@@ -1,10 +1,24 @@
-// @ts-nocheck
 import React, { Component } from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 
-export class Table extends Component<any, any> {
-  constructor(props) {
+export interface Column {
+  Header: string;
+  accessor: string;
+}
+export interface TableProps<T> {
+  data: T[];
+  onChange: (t: T) => void;
+  columns: Column[];
+}
+
+export interface TableState<T> {
+  data: T[];
+}
+
+
+export class Table<T> extends Component<TableProps<T>, TableState<T>> {
+  constructor(props: TableProps<T>) {
     super(props);
     this.state = {
       data: props.data
@@ -24,13 +38,13 @@ export class Table extends Component<any, any> {
         contentEditable
         suppressContentEditableWarning
         onBlur={e => {
-          const data = [...this.state.data];
-          if (!data[cellInfo.index]) {
+          const dataCopy = [...this.state.data];
+          if (!dataCopy[cellInfo.index]) {
             return;
           }
-          data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+          dataCopy[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
           onChange(cellInfo);
-          this.setState({ data });
+          this.setState({ data: dataCopy });
         }}
         dangerouslySetInnerHTML={{
           __html: value
