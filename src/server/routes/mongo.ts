@@ -1,4 +1,4 @@
-import express from "express";
+import express from 'express';
 
 const MongoClient = require('mongodb').MongoClient;
 
@@ -18,10 +18,9 @@ export function mongoRouterFactory(mongoUrl: string) {
       console.log('kay', dbs.databases);
 
       res.json({ databases: dbs.databases });
-
     } catch (e) {
-      console.log("e", e.message);
-      res.json({ databases: []});
+      console.log('e', e.message);
+      res.json({ databases: [] });
     }
   });
   app.get('/collections/:dbName', async (req, res) => {
@@ -32,9 +31,8 @@ export function mongoRouterFactory(mongoUrl: string) {
 
       const collections = await db.listCollections().toArray();
       res.json({ collections });
-
     } catch (e) {
-      res.json({ collections: []});
+      res.json({ collections: [] });
     }
   });
 

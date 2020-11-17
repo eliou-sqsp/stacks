@@ -1,4 +1,4 @@
-import { Rest, Stack } from "../../common/models/stack/stack";
+import { Rest, Stack } from '../../common/models/stack/stack';
 const MongoClient = require('mongodb').MongoClient;
 
 export class Mongo {
@@ -18,7 +18,9 @@ export class Mongo {
       await Mongo.doCheck(core);
       return core.getMongo().withCheckResponse({ status: 'ok', rest });
     } catch (e) {
-      return core.getMongo().withCheckResponse({ status: 'failed', error: e, rest });
+      return core
+        .getMongo()
+        .withCheckResponse({ status: 'failed', error: e, rest });
     }
   }
 }

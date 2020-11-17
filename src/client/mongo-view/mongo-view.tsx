@@ -1,9 +1,12 @@
 import './mongo-view.scss';
 
 import React, { Component } from 'react';
-import { MongoItem, MongoCollection } from "./mongo-collection/mongo-collection";
+import {
+  MongoItem,
+  MongoCollection,
+} from './mongo-collection/mongo-collection';
 import { Icon, ITreeNode, NonIdealState, Tree } from '@blueprintjs/core';
-import { IconNames } from "@blueprintjs/icons";
+import { IconNames } from '@blueprintjs/icons';
 
 export interface MongoDatabase {
   name: string;
@@ -15,8 +18,7 @@ export interface MongoCollection {
   name: string;
 }
 
-export interface MongoViewProps {
-}
+export interface MongoViewProps {}
 
 export interface MongoViewState {
   databases?: MongoDatabase[];
@@ -37,18 +39,20 @@ class MongoView extends Component<MongoViewProps, MongoViewState> {
     const databases = await databasesResp.json();
 
     this.setState({
-      databases: databases.databases
+      databases: databases.databases,
     });
   }
 
   async queryCollection(collectionName: string) {
     const { selectedDatabase } = this.state;
 
-    const response = await fetch(`/mongo/collection/${selectedDatabase}/${collectionName}`);
+    const response = await fetch(
+      `/mongo/collection/${selectedDatabase}/${collectionName}`,
+    );
     const responseJson = await response.json();
     this.setState({
-      items: responseJson.items
-    })
+      items: responseJson.items,
+    });
   }
 
   onDatabaseClick = async (nodeData: ITreeNode) => {
@@ -58,28 +62,31 @@ class MongoView extends Component<MongoViewProps, MongoViewState> {
     let collections: MongoCollection[] = [];
 
     try {
-      const mongoCollections = await fetch(`/mongo/collections/${databaseName}`);
+      const mongoCollections = await fetch(
+        `/mongo/collections/${databaseName}`,
+      );
       const collectionsJSON = await mongoCollections.json();
-      collections = collectionsJSON.collections
-        .sort((a: MongoCollection, b: MongoCollection) => a.name.localeCompare(b.name));
+      collections = collectionsJSON.collections.sort(
+        (a: MongoCollection, b: MongoCollection) =>
+          a.name.localeCompare(b.name),
+      );
     } catch (e) {
       collections = [];
     }
 
     this.setState({
-      selectedDatabase: selectedDatabase === databaseName ? undefined : databaseName,
+      selectedDatabase:
+        selectedDatabase === databaseName ? undefined : databaseName,
       collections,
     });
-  }
+  };
 
   updateCollection = async (...args: any[]) => {
-    console.log("args", args);
-  }
+    console.log('args', args);
+  };
 
   renderNonIdealCollection(element: JSX.Element) {
-    return <div className="mongo-collection">
-      {element}
-    </div>
+    return <div className="mongo-collection">{element}</div>;
   }
 
   renderCollection() {
@@ -90,7 +97,7 @@ class MongoView extends Component<MongoViewProps, MongoViewState> {
           icon="th-list"
           title="Select a collection"
           description="Select a collection to see its items"
-        />
+        />,
       );
     }
 
@@ -100,14 +107,24 @@ class MongoView extends Component<MongoViewProps, MongoViewState> {
           icon="th-list"
           title={selectedCollection}
           description="Empty Collection"
-        />
+        />,
       );
     }
 
-    return <MongoCollection items={items} collectionName={selectedCollection} onUpdate={this.updateCollection} />
+    return (
+      <MongoCollection
+        items={items}
+        collectionName={selectedCollection}
+        onUpdate={this.updateCollection}
+      />
+    );
   }
 
-  private handleNodeClick = (nodeData: ITreeNode, _nodePath: number[], e: React.MouseEvent<HTMLElement>) => {
+  private handleNodeClick = (
+    nodeData: ITreeNode,
+    _nodePath: number[],
+    e: React.MouseEvent<HTMLElement>,
+  ) => {
     if (nodeData.childNodes) {
       return this.onDatabaseClick(nodeData);
     }
@@ -127,51 +144,61 @@ class MongoView extends Component<MongoViewProps, MongoViewState> {
     });
 
     this.queryCollection(nodeData.id as string);
-
   };
 
   render() {
     const { databases, collections, selectedDatabase } = this.state;
     if (!databases) {
-      return <NonIdealState/>;
+      return <NonIdealState />;
     }
 
-    const contents = databases.map(database => {
+    const contents = databases.map((database) => {
       const { name } = database;
-      const asNode = { label: name, id: name, isExpanded: false, childNodes: [], icon: 'database' };
+      const asNode = {
+        label: name,
+        id: name,
+        isExpanded: false,
+        childNodes: [],
+        icon: 'database',
+      };
       if (name === selectedDatabase) {
-        const childNodes = collections.map(collection => {
+        const childNodes = collections.map((collection) => {
           return {
             id: collection.name,
             label: collection.name,
-            icon: 'th-list'
-          }
+            icon: 'th-list',
+          };
         });
 
         return { ...asNode, isExpanded: true, childNodes };
       }
 
       return asNode;
-    })
+    });
 
-
-    return <div className="mongo-view">
-      <div className="left">
-        <div className="tree-container">
-          <div className="bp3-input-group search">
-            <Icon icon={IconNames.SEARCH} />
-            <input className="bp3-input" type="search" placeholder="Search" dir="auto" />
+    return (
+      <div className="mongo-view">
+        <div className="left">
+          <div className="tree-container">
+            <div className="bp3-input-group search">
+              <Icon icon={IconNames.SEARCH} />
+              <input
+                className="bp3-input"
+                type="search"
+                placeholder="Search"
+                dir="auto"
+              />
+            </div>
+            <Tree
+              contents={contents as any}
+              onNodeClick={this.handleNodeClick}
+            />
           </div>
-          <Tree
-            contents={contents as any}
-            onNodeClick={this.handleNodeClick}
-          />
         </div>
+        {this.renderCollection()}
       </div>
-      {this.renderCollection()}
-    </div>
+    );
   }
 }
-
 
 export default MongoView;

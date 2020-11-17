@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import ReactTable from "react-table";
-import "react-table/react-table.css";
+import React, { Component } from 'react';
+import ReactTable from 'react-table';
+import 'react-table/react-table.css';
 
 export interface Column {
   Header: string;
@@ -16,12 +16,11 @@ export interface TableState<T> {
   data: T[];
 }
 
-
 export class Table<T> extends Component<TableProps<T>, TableState<T>> {
   constructor(props: TableProps<T>) {
     super(props);
     this.state = {
-      data: props.data
+      data: props.data,
     };
   }
 
@@ -34,10 +33,10 @@ export class Table<T> extends Component<TableProps<T>, TableState<T>> {
     }
     return (
       <div
-        style={{ backgroundColor: "#fafafa" }}
+        style={{ backgroundColor: '#fafafa' }}
         contentEditable
         suppressContentEditableWarning
-        onBlur={e => {
+        onBlur={(e) => {
           const dataCopy = [...this.state.data];
           if (!dataCopy[cellInfo.index]) {
             return;
@@ -47,11 +46,11 @@ export class Table<T> extends Component<TableProps<T>, TableState<T>> {
           this.setState({ data: dataCopy });
         }}
         dangerouslySetInnerHTML={{
-          __html: value
+          __html: value,
         }}
       />
     );
-  }
+  };
 
   render() {
     const { data, columns } = this.props;
@@ -59,13 +58,13 @@ export class Table<T> extends Component<TableProps<T>, TableState<T>> {
       <div>
         <ReactTable
           data={data}
-          columns={columns.map(column => {
-            return {...column, Cell: this.renderEditable }
+          columns={columns.map((column) => {
+            return { ...column, Cell: this.renderEditable };
           })}
           defaultPageSize={15}
           className="-striped -highlight"
         />
       </div>
-    )
+    );
   }
 }

@@ -1,8 +1,8 @@
 import yargs from 'yargs';
 import path from 'path';
-import { startApp } from "./index";
-import { Stacks, StacksJSON } from "../common/models/stacks/stacks";
-import { Paths } from "./models/paths";
+import { startApp } from './index';
+import { Stacks, StacksJSON } from '../common/models/stacks/stacks';
+import { Paths } from './models/paths';
 
 function resolveHome(filepath: string) {
   if (!process.env.HOME) {
@@ -15,30 +15,29 @@ function resolveHome(filepath: string) {
 }
 
 const argv = yargs
-  .alias({ 'c': 'config'})
+  .alias({ c: 'config' })
   .command('config', 'where is config', {
     config: {
       description: 'the config',
       alias: 'c',
       type: 'string',
-    }
+    },
   })
-  .alias({ 'p': 'paths'})
+  .alias({ p: 'paths' })
   .command('paths', 'where is paths', {
     config: {
       description: 'the paths',
       alias: 'p',
       type: 'string',
-    }
-  })
-  .argv;
+    },
+  }).argv;
 
 if (!argv.config) {
-  throw new Error("must supply config");
+  throw new Error('must supply config');
 }
 
 if (!argv.paths) {
-  throw new Error("must supply paths");
+  throw new Error('must supply paths');
 }
 
 let configJSON: StacksJSON & { dockerEndpoint: string };
@@ -56,8 +55,12 @@ try {
 }
 
 let resolvedPaths: Partial<Paths> = {};
-Object.keys(paths).forEach(path => {
-  resolvedPaths[path] = resolveHome(paths[path])
+Object.keys(paths).forEach((path) => {
+  resolvedPaths[path] = resolveHome(paths[path]);
 });
 
-startApp(Stacks.fromJSON(configJSON), resolvedPaths as Paths, configJSON.dockerEndpoint);
+startApp(
+  Stacks.fromJSON(configJSON),
+  resolvedPaths as Paths,
+  configJSON.dockerEndpoint,
+);

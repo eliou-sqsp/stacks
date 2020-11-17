@@ -1,12 +1,12 @@
-import { Service, ServiceName } from "../common/models/service/service";
-import { Rest, Stack, StackName } from "../common/models/stack/stack";
-import { Mongo } from "./services/mongo";
-import { Redis } from "./services/redis";
-import { Consul } from "./services/consul";
-import { Warden } from "./services/warden";
-import { Zookeeper } from "./services/zookeeper";
-import { RabbitMQ } from "./services/rabbit-mq";
-import { Envoy } from "./services/service-mesh/envoy";
+import { Service, ServiceName } from '../common/models/service/service';
+import { Rest, Stack, StackName } from '../common/models/stack/stack';
+import { Mongo } from './services/mongo';
+import { Redis } from './services/redis';
+import { Consul } from './services/consul';
+import { Warden } from './services/warden';
+import { Zookeeper } from './services/zookeeper';
+import { RabbitMQ } from './services/rabbit-mq';
+import { Envoy } from './services/service-mesh/envoy';
 
 export interface HealthCheck {
   stackName: StackName;
@@ -20,5 +20,5 @@ export const HEALTHCHECKS = [
   { stackName: 'core', serviceName: 'warden', hydrate: Warden.hydrate },
   { stackName: 'core', serviceName: 'zookeeper', hydrate: Zookeeper.hydrate },
   { stackName: 'core', serviceName: 'rabbitMQ', hydrate: RabbitMQ.hydrate },
-  { stackName: 'serviceMesh', serviceName: 'envoy', hydrate: Envoy.hydrate }
+  { stackName: 'serviceMesh', serviceName: 'envoy', hydrate: Envoy.hydrate },
 ] as HealthCheck[];

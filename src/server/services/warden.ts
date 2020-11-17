@@ -1,4 +1,4 @@
-import { Rest, Stack } from "../../common/models/stack/stack";
+import { Rest, Stack } from '../../common/models/stack/stack';
 import got from 'got';
 
 export class Warden {
@@ -8,7 +8,7 @@ export class Warden {
       throw new Error(`Could not get consul healthcheck url`);
     }
 
-    const resp = await got(url + '/healthcheck?pretty=true')
+    const resp = await got(url + '/healthcheck?pretty=true');
     const respJSON = JSON.parse(resp.body);
     if (respJSON.Warden.healthy === true) {
       return 'ok';
@@ -22,7 +22,9 @@ export class Warden {
       await Warden.doCheck(core);
       return core.getWarden().withCheckResponse({ status: 'ok', rest });
     } catch (e) {
-      return core.getWarden().withCheckResponse({ status: 'failed', error: e, rest });
+      return core
+        .getWarden()
+        .withCheckResponse({ status: 'failed', error: e, rest });
     }
   }
 }

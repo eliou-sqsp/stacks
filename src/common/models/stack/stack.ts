@@ -1,13 +1,22 @@
-import { Service, ServiceName, ServiceParameters } from "../service/service";
+import { Service, ServiceName, ServiceParameters } from '../service/service';
 
 export type StackComponentStatus = 'ok' | 'failed' | 'starting' | 'unknown';
-export type StackName = 'core' | 'serviceMesh' | 'echo' | 'elastic' | 'kafka' | 'legacy-elastic' | 'oplog' | 'postgres' | 'search';
+export type StackName =
+  | 'core'
+  | 'serviceMesh'
+  | 'echo'
+  | 'elastic'
+  | 'kafka'
+  | 'legacy-elastic'
+  | 'oplog'
+  | 'postgres'
+  | 'search';
 
 export interface StackJSON {
   name: StackName;
   disabled: boolean;
   services: Record<ServiceName, ServiceParameters>;
-  statusDate?: string
+  statusDate?: string;
   status?: StackComponentStatus;
   error?: Error;
 }
@@ -16,7 +25,7 @@ export interface StackParameters {
   name: StackName;
   disabled: boolean;
   services: Record<ServiceName, Service>;
-  statusDate?: string
+  statusDate?: string;
   status?: StackComponentStatus;
   error?: Error;
 }
@@ -31,8 +40,10 @@ export class Stack {
   static fromJSON(params: StackJSON) {
     if (params.services) {
       const serviceNames = Object.keys(params.services);
-      serviceNames.forEach(serviceName => {
-        (params.services as any)[serviceName] = new Service((params.services as any)[serviceName])
+      serviceNames.forEach((serviceName) => {
+        (params.services as any)[serviceName] = new Service(
+          (params.services as any)[serviceName],
+        );
       });
     }
 
@@ -60,7 +71,7 @@ export class Stack {
       disabled: !!this.disabled,
       error: this.error,
       services: this.services,
-    }
+    };
   }
 
   setService(service: Service) {
@@ -80,11 +91,13 @@ export class Stack {
 
     const component = services[serviceName];
     if (!component) {
-      throw new Error(`Could not find service: ${serviceName} (stack: ${this.name})`);
+      throw new Error(
+        `Could not find service: ${serviceName} (stack: ${this.name})`,
+      );
     }
 
     return component;
-  }
+  };
 
   getMongo = () => this.get('mongo');
 
@@ -116,9 +129,8 @@ export class Stack {
   }
 
   getServicesAsList() {
-    return Object.keys(this.services).map(services => {
-      return {... this.get(services as ServiceName) };
-    })
+    return Object.keys(this.services).map((services) => {
+      return { ...this.get(services as ServiceName) };
+    });
   }
 }
-

@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import { parseLines, stringify } from 'dot-properties';
 
-import { Diff } from "../../common/models/stacks/stacks";
-import { Paths } from "../models/paths";
-import { updateConfigWithStacksProperties } from "./update-config-with-stack-properties";
+import { Diff } from '../../common/models/stacks/stacks';
+import { Paths } from '../models/paths';
+import { updateConfigWithStacksProperties } from './update-config-with-stack-properties';
 
 function updatePropertiesWithConfig(diffs: Diff[], paths: Paths) {
   const { stacksProperties } = paths;
@@ -17,11 +17,11 @@ function updatePropertiesWithConfig(diffs: Diff[], paths: Paths) {
     }
 
     const name = pp[0];
-    const myDiff = diffs.find(d => d.name.toLowerCase() === name);
+    const myDiff = diffs.find((d) => d.name.toLowerCase() === name);
     if (myDiff) {
       let retVal = [];
       retVal.push(name);
-      retVal.push(myDiff.newState === 'enabled' ? 'y' :  'n');
+      retVal.push(myDiff.newState === 'enabled' ? 'y' : 'n');
       return retVal;
     }
 
@@ -29,11 +29,10 @@ function updatePropertiesWithConfig(diffs: Diff[], paths: Paths) {
   });
 
   const updated = stringify(remapped);
-  fs.writeFileSync(stacksProperties, updated)
+  fs.writeFileSync(stacksProperties, updated);
 }
 
 export function doSync(diff: Diff[], paths: Paths) {
   updatePropertiesWithConfig(diff, paths);
   updateConfigWithStacksProperties(paths);
 }
-

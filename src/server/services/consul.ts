@@ -1,4 +1,4 @@
-import { Rest, Stack } from "../../common/models/stack/stack";
+import { Rest, Stack } from '../../common/models/stack/stack';
 import got from 'got';
 
 export class Consul {
@@ -16,7 +16,9 @@ export class Consul {
       await Consul.doCheck(core);
       return core.getConsul().withCheckResponse({ status: 'ok', rest });
     } catch (e) {
-      return core.getConsul().withCheckResponse({ status: 'failed', error: e, rest });
+      return core
+        .getConsul()
+        .withCheckResponse({ status: 'failed', error: e, rest });
     }
   }
 }

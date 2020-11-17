@@ -1,17 +1,26 @@
-import "./service-card.scss";
+import './service-card.scss';
 
-import React, { Component } from "react";
-import { Button, ButtonGroup, Card, Classes, Dialog, Elevation, Icon, Intent } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
-import { Route } from "../../routes/routes";
-import { Service } from "../../../common/models/service/service";
+import React, { Component } from 'react';
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  Classes,
+  Dialog,
+  Elevation,
+  Icon,
+  Intent,
+} from '@blueprintjs/core';
+import { IconNames } from '@blueprintjs/icons';
+import { Route } from '../../routes/routes';
+import { Service } from '../../../common/models/service/service';
 const relativeDate = require('tiny-relative-date').default;
 
 export interface ServiceCardProps {
   service: Service;
   stackDisabled: boolean;
   route: Route;
-  columns: { title: string, property: string }[];
+  columns: { title: string; property: string }[];
 }
 
 export interface ServiceCardState {
@@ -24,21 +33,37 @@ export interface ServiceCardState {
 export class ServiceCard extends Component<ServiceCardProps, ServiceCardState> {
   constructor(props: any) {
     super(props);
-    this.state = {}
+    this.state = {};
   }
 
-  getServiceHealth(service: Service, stackDisabled: boolean, iconOnClick: () => void) {
+  getServiceHealth(
+    service: Service,
+    stackDisabled: boolean,
+    iconOnClick: () => void,
+  ) {
     if (stackDisabled) {
       return {
-        icon: <Icon icon={IconNames.INFO_SIGN} iconSize={Icon.SIZE_STANDARD} intent={Intent.NONE} />,
-        lastChecked: "Stack not enabled"
-      }
+        icon: (
+          <Icon
+            icon={IconNames.INFO_SIGN}
+            iconSize={Icon.SIZE_STANDARD}
+            intent={Intent.NONE}
+          />
+        ),
+        lastChecked: 'Stack not enabled',
+      };
     }
     let icon: JSX.Element;
     if (!service.statusDate) {
       return {
-        icon: <Icon icon={IconNames.INFO_SIGN} iconSize={Icon.SIZE_STANDARD} intent={Intent.NONE} />,
-        error: "Not implemented"
+        icon: (
+          <Icon
+            icon={IconNames.INFO_SIGN}
+            iconSize={Icon.SIZE_STANDARD}
+            intent={Intent.NONE}
+          />
+        ),
+        error: 'Not implemented',
       };
     }
 
@@ -52,15 +77,36 @@ export class ServiceCard extends Component<ServiceCardProps, ServiceCardState> {
       }
 
       return e.code || e.name || e.message || e.stack;
-    }
+    };
 
     let error: string | undefined;
     if (service.status === 'ok') {
-      icon = <Icon onClick={iconOnClick} icon={IconNames.TICK_CIRCLE} iconSize={Icon.SIZE_STANDARD} intent={Intent.SUCCESS} />;
+      icon = (
+        <Icon
+          onClick={iconOnClick}
+          icon={IconNames.TICK_CIRCLE}
+          iconSize={Icon.SIZE_STANDARD}
+          intent={Intent.SUCCESS}
+        />
+      );
     } else if (service.status === 'unknown' || !service.status) {
-      icon = <Icon onClick={iconOnClick} icon={IconNames.INFO_SIGN} iconSize={Icon.SIZE_STANDARD} intent={Intent.NONE} />;
+      icon = (
+        <Icon
+          onClick={iconOnClick}
+          icon={IconNames.INFO_SIGN}
+          iconSize={Icon.SIZE_STANDARD}
+          intent={Intent.NONE}
+        />
+      );
     } else {
-      icon = <Icon onClick={iconOnClick} icon={IconNames.ERROR} iconSize={Icon.SIZE_STANDARD} intent={Intent.DANGER} />;
+      icon = (
+        <Icon
+          onClick={iconOnClick}
+          icon={IconNames.ERROR}
+          iconSize={Icon.SIZE_STANDARD}
+          intent={Intent.DANGER}
+        />
+      );
       error = parseError(service.error);
     }
 
@@ -92,16 +138,16 @@ export class ServiceCard extends Component<ServiceCardProps, ServiceCardState> {
     });
     try {
       await fetch(url, {
-        method: 'POST'
-      })
+        method: 'POST',
+      });
     } catch (e) {
-      console.error("Could not stop");
+      console.error('Could not stop');
     }
 
     this.setState({
       loadingStop: false,
     });
-  }
+  };
 
   onStartContainer = async () => {
     const { service, stackDisabled } = this.props;
@@ -119,14 +165,13 @@ export class ServiceCard extends Component<ServiceCardProps, ServiceCardState> {
     });
 
     await fetch(url, {
-      method: 'POST'
-    })
+      method: 'POST',
+    });
 
     this.setState({
       loadingStart: false,
     });
-
-  }
+  };
 
   renderLogsDialog() {
     const { service } = this.props;
@@ -137,30 +182,30 @@ export class ServiceCard extends Component<ServiceCardProps, ServiceCardState> {
 
     const onClose = () => {
       this.setState({
-        logsOpen: false
+        logsOpen: false,
       });
     };
 
-    return <Dialog
-      className="big-boi"
-      isOpen={true}
-      icon="th-list"
-      onClose={onClose}
-      title={service.name}
-    >
-      <div className={Classes.DIALOG_BODY}>
-        <div className="logs-container">
-          <pre>
-            {logs}
-          </pre>
+    return (
+      <Dialog
+        className="big-boi"
+        isOpen={true}
+        icon="th-list"
+        onClose={onClose}
+        title={service.name}
+      >
+        <div className={Classes.DIALOG_BODY}>
+          <div className="logs-container">
+            <pre>{logs}</pre>
+          </div>
         </div>
-      </div>
-      <div className={Classes.DIALOG_FOOTER}>
-        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button onClick={onClose}>Close</Button>
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            <Button onClick={onClose}>Close</Button>
+          </div>
         </div>
-      </div>
-    </Dialog>
+      </Dialog>
+    );
   }
 
   getLogs = async () => {
@@ -171,27 +216,31 @@ export class ServiceCard extends Component<ServiceCardProps, ServiceCardState> {
     }
 
     this.setState({
-      logsOpen: true
+      logsOpen: true,
     });
 
     const { rest } = service;
     const { Id } = rest;
 
     const resp = await fetch(`container-logs/${Id}`, {
-      method: 'GET'
+      method: 'GET',
     });
     const logs = await resp.text();
 
     this.setState({
       logs,
     });
-  }
+  };
 
   render() {
     const { route, service, stackDisabled } = this.props;
-    const iconOnClick = () => window.location.href = route.url;
+    const iconOnClick = () => (window.location.href = route.url);
 
-    const { icon, error, lastChecked, containerStatus } = this.getServiceHealth(service, stackDisabled, iconOnClick);
+    const { icon, error, lastChecked, containerStatus } = this.getServiceHealth(
+      service,
+      stackDisabled,
+      iconOnClick,
+    );
 
     return (
       <>
@@ -199,14 +248,38 @@ export class ServiceCard extends Component<ServiceCardProps, ServiceCardState> {
           <Card interactive={true} elevation={Elevation.ONE} key={route.title}>
             <div className="card-columns">
               {icon}
-              {stackDisabled ? route.title : <a href={route.url}>{route.title}</a>}
-              <div onClick={iconOnClick} className="container-status">{containerStatus}</div>
-              <div onClick={iconOnClick} className="last-checked">{lastChecked}</div>
-              <div onClick={iconOnClick} className="image">{service.rest?.Image}</div>
-              <div onClick={iconOnClick} className="error">{error}</div>
+              {stackDisabled ? (
+                route.title
+              ) : (
+                <a href={route.url}>{route.title}</a>
+              )}
+              <div onClick={iconOnClick} className="container-status">
+                {containerStatus}
+              </div>
+              <div onClick={iconOnClick} className="last-checked">
+                {lastChecked}
+              </div>
+              <div onClick={iconOnClick} className="image">
+                {service.rest?.Image}
+              </div>
+              <div onClick={iconOnClick} className="error">
+                {error}
+              </div>
               <ButtonGroup>
-                <Button loading={this.state.loadingStop} onClick={this.onStopContainer} outlined={true} icon="stop" title="Stop" />
-                <Button loading={this.state.loadingStart} onClick={this.onStartContainer} outlined={true} icon="play" title="Start" />
+                <Button
+                  loading={this.state.loadingStop}
+                  onClick={this.onStopContainer}
+                  outlined={true}
+                  icon="stop"
+                  title="Stop"
+                />
+                <Button
+                  loading={this.state.loadingStart}
+                  onClick={this.onStartContainer}
+                  outlined={true}
+                  icon="play"
+                  title="Start"
+                />
                 <Button
                   onClick={this.getLogs}
                   outlined={true}
@@ -219,6 +292,6 @@ export class ServiceCard extends Component<ServiceCardProps, ServiceCardState> {
           {this.renderLogsDialog()}
         </div>
       </>
-    )
+    );
   }
 }

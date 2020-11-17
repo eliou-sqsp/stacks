@@ -11,7 +11,7 @@
 }
 
 .stack-header {
-  color: rgba(0,0,0,.54);
+  color: rgba(0, 0, 0, 0.54);
 }
 
 .stack {
@@ -22,7 +22,7 @@
 
 .stack-control {
   display: grid;
-  grid-template-areas: "title nothing actions";
+  grid-template-areas: 'title nothing actions';
   grid-template-columns: 1fr 20fr 2fr;
 }
 
@@ -32,7 +32,7 @@
   grid-area: title;
 
   &.disabled {
-    color: #8A9BA8;
+    color: #8a9ba8;
   }
 }
 

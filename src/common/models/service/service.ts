@@ -1,9 +1,18 @@
-import { Rest, StackComponentStatus } from "../stack/stack";
+import { Rest, StackComponentStatus } from '../stack/stack';
 
-export type CoreServiceName = 'mongo' | 'consul' | 'warden' | 'redis' | 'zookeeper' | 'rabbitMQ';
+export type CoreServiceName =
+  | 'mongo'
+  | 'consul'
+  | 'warden'
+  | 'redis'
+  | 'zookeeper'
+  | 'rabbitMQ';
 export type ServiceMeshServiceName = 'envoy' | 'discovery';
 export type EchoServiceName = 'echo' | 'brickRedis';
-export type ServiceName = CoreServiceName | ServiceMeshServiceName | EchoServiceName;
+export type ServiceName =
+  | CoreServiceName
+  | ServiceMeshServiceName
+  | EchoServiceName;
 
 export interface DockerServiceConfig {
   container_name: string;
@@ -23,24 +32,31 @@ export interface ServiceParameters {
   name: string;
   status?: StackComponentStatus;
   containerName?: string;
-  statusDate?: string
+  statusDate?: string;
   rest?: Rest;
   error?: Error;
   ports?: string[];
 }
 
-
 export class Service {
   name: string;
   containerName?: string;
   rest?: Rest;
-  statusDate?: string
+  statusDate?: string;
   status?: StackComponentStatus;
   error?: Error;
   ports?: string[];
 
   constructor(props: ServiceParameters) {
-    const { name, status, containerName, statusDate, rest, error, ports } = props;
+    const {
+      name,
+      status,
+      containerName,
+      statusDate,
+      rest,
+      error,
+      ports,
+    } = props;
     this.name = name;
     this.status = status;
     this.containerName = containerName;
@@ -50,7 +66,8 @@ export class Service {
     this.ports = ports;
   }
 
-  getUrl() {  // todo: yiiiiikes this method sucks
+  getUrl() {
+    // todo: yiiiiikes this method sucks
     if (!this.ports) {
       return null;
     }
@@ -68,9 +85,8 @@ export class Service {
     } else if (this.name === 'envoy' && this.ports.includes('9901:9901')) {
       port = '9901';
     } else {
-      port = this.ports[0].split(':')[0]
+      port = this.ports[0].split(':')[0];
     }
-
 
     return `${host}:${port}`;
   }
@@ -86,7 +102,6 @@ export class Service {
     }
 
     this.status = status;
-
 
     return this;
   }
