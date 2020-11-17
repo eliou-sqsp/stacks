@@ -1,0 +1,114 @@
+{
+  "dockerEndpoint": "http://localhost:9005/api/",
+  "stacks": {
+    "core": {
+      "name": "core",
+      "services": {
+        "mongo": {
+          "name": "mongo",
+          "containerName": "core_mongodb_1",
+          "ports": [
+            "27017:27017",
+            "8083:8083"
+          ]
+        },
+        "consul": {
+          "name": "consul",
+          "containerName": "core_consul_1",
+          "ports": [
+            "8500:8500"
+          ]
+        },
+        "warden": {
+          "name": "warden",
+          "containerName": "core_warden_1",
+          "ports": [
+            "8060:8080",
+            "8061:8081"
+          ]
+        },
+        "redis": {
+          "name": "redis",
+          "containerName": "core_redis_1",
+          "ports": [
+            "6379:6379"
+          ]
+        },
+        "zookeeper": {
+          "name": "zookeeper",
+          "containerName": "core_zookeeper_1",
+          "ports": [
+            "2181:2181"
+          ]
+        },
+        "rabbitMQ": {
+          "name": "rabbitMQ"
+        }
+      },
+      "disabled": false
+    },
+    "kafka": {
+      "name": "Kafka",
+      "disabled": true
+    },
+    "servicemesh": {
+      "name": "serviceMesh",
+      "services": {
+        "discovery": {
+          "name": "discovery"
+        },
+        "envoy": {
+          "name": "envoy",
+          "containerName": "servicemesh_envoy_1",
+          "ports": [
+            "9002:9002",
+            "9901:9901"
+          ]
+        }
+      },
+      "disabled": true
+    },
+    "oplog": {
+      "disabled": true
+    },
+    "echo": {
+      "name": "echo",
+      "disabled": false,
+      "services": {
+        "echo": {
+          "name": "echo",
+          "containerName": "echo-local-dev",
+          "ports": [
+            "20191:20191",
+            "20192:20192",
+            "20193:20193",
+            "20194:20194",
+            "20195:20195",
+            "80:20193",
+            "443:20194"
+          ]
+        },
+        "brickredis": {
+          "name": "brickredis",
+          "containerName": "brick-redis",
+          "ports": [
+            "20196:6379"
+          ]
+        }
+      }
+    },
+    "postgres": {
+      "disabled": true
+    },
+    "search": {
+      "disabled": true
+    },
+    "elastic": {
+      "name": "Elastic",
+      "disabled": true
+    },
+    "legacy-elastic": {
+      "disabled": false
+    }
+  }
+}

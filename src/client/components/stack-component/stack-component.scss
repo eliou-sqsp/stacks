@@ -1,0 +1,47 @@
+@import '~@blueprintjs/core/src/blueprint';
+
+.stack-headers {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 2fr 1fr 4fr 3fr 1fr;
+  padding: 16px 20px;
+}
+
+.stack-header.service {
+  margin-left: -15px;
+}
+
+.stack-header {
+  color: rgba(0,0,0,.54);
+}
+
+.stack {
+  background-color: $pt-app-background-color;
+  margin-bottom: 16px;
+  padding: 20px;
+}
+
+.stack-control {
+  display: grid;
+  grid-template-areas: "title nothing actions";
+  grid-template-columns: 1fr 20fr 2fr;
+}
+
+.stack-control-title {
+  font-size: 17px;
+  font-weight: 600;
+  grid-area: title;
+
+  &.disabled {
+    color: #8A9BA8;
+  }
+}
+
+.actions {
+  grid-area: actions;
+}
+
+.stack-control {
+  &:not(:first-child) {
+    padding-top: 20px;
+  }
+}

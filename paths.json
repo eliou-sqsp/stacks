@@ -1,0 +1,6 @@
+{
+  "logs": "~/squarespace/generated/logs/",
+  "stacksProperties": "~/squarespace/generated/stacks/stacks.properties",
+  "config": "config.json",
+  "dockers": "~/squarespace/generated/stacks/"
+}
